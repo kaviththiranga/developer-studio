@@ -36,26 +36,32 @@ public class WebWindow {
 
 	public WebWindow(String appID) throws WebUIException {
 		shell = new Shell(SWT.RESIZE & SWT.NO_SCROLL);
-		initShell();
+		positionShell();
 		composite = new WebComposite(appID, shell, SWT.NONE);
 		injectCallbacks();
 	}
 
 	public WebWindow(String appID, String appContext) throws WebUIException {
 		shell = new Shell(SWT.RESIZE & SWT.NO_SCROLL);
-		initShell();
+		positionShell();
 		composite = new WebComposite(appID, appContext, shell, SWT.NONE);
 		injectCallbacks();
 	}
 
 	public WebWindow(URL appURL) throws WebUIException {
 		shell = new Shell(SWT.RESIZE & SWT.NO_SCROLL);
-		initShell();
+		positionShell();
 		composite = new WebComposite(appURL, shell, SWT.NONE);
 		injectCallbacks();
 	}
+	
+	public void setSize(int width, int height){
+		this.shell.setSize(width, height);
+		positionShell();
+		shell.redraw();
+	}
 
-	private void initShell() {
+	private void positionShell() {
 		shell.setLayout(new FillLayout(SWT.HORIZONTAL));
 
 		Monitor primary = Display.getDefault().getPrimaryMonitor();

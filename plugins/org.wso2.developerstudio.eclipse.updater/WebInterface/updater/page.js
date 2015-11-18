@@ -1,15 +1,75 @@
-var loadUpdate = function() {
-	var updates = getAvailableUpdatesCallback();
-	var updatesMap = $.parseJSON(updates);
-	$("#updateTab").data("updatesMap", updatesMap);
-	//var count = 0;
-	$.each(updatesMap, function(key, value) {
-		var item = createUpdateItem(key, value);
-		$("#updateList").append(item);
-		//$("#updateList").append("<hr>");
-		//count++;
+
+var countSelectedUpdates = 0;
+
+
+$(document).ready(function () {
+	$(document).on("click", ".update-icon", function(e) {
+		var item = $(this).closest(".media");
+		var feature = $(item).data("feature");
+		var activeClass = "selected";
+
+		// feature is already selected - this is to unselect
+		if (feature.selected) {
+			feature.selected = false;
+			$(this).removeClass(activeClass);
+			countSelectedUpdates--;
+		} else {
+			feature.selected = true;
+			$(this).addClass(activeClass);
+			countSelectedUpdates++;
+		}
+		var updateListTxt = "";
+		if (countSelectedUpdates === 0) {
+			updateListTxt = " No features will be updated.";
+		} else if (countSelectedUpdates === 1) {
+			updateListTxt = " 1 feature will be updated.";
+		} else {
+			updateListTxt = countSelectedUpdates
+					+ " features will be updated.";
+		}
+		$("#updateSelectionSummary").text(updateListTxt);
 	});
-	//$("#updateSummary").text(count + " updates are availbale.");
+});
+
+var installSelectedUpdates = function(){
+	//var updates = $("#updateTab").data("updatesMap");
+	var selectedUpdates = [];
+	
+	$('#updateList').children('.media').each(function () {
+		var feature =  $(this).data("feature");
+		if(feature.selected){
+			selectedUpdates.push(feature);
+		}
+	});
+	setSelectedUpdatesCallback(JSON.stringify(selectedUpdates));
+}
+
+
+var addToolTips = function(){
+    $('[data-toggle="tooltip"]').tooltip();   
+};
+
+
+var initUpdatesList = function() {
+	try {
+		var updatesString = getAvailableUpdatesCallback();
+		var updates = $.parseJSON(updatesString);
+		$("#updateTab").data("updatesMap", updates);
+		var count = 0;
+		$.each(updates, function(key, value) {
+			var item = createUpdateItem(key, value);
+			$(item).data("feature", value);
+			$("#updateList").append(item);
+			// $("#updateList").append("<hr>");
+			count++;
+		});
+		$("#updateAvailableSummary").text(count + " updates are availbale.");
+		$("#updateSelectionSummary").text(
+				countSelectedUpdates + " updates will be installed.");
+		addToolTips();
+	} catch (err) {
+		alert('Error while loading list of updates. Message: ' + err.message);
+	}
 }
 
 var createUpdateItem = function(id, feature) {
@@ -27,7 +87,7 @@ var createUpdateItem = function(id, feature) {
 
 	var body = $.parseHTML("<div class='media-body'></div>");
 	var version = $
-			.parseHTML("<span class='text-muted pull-right'><small class='text-muted'>"
+			.parseHTML("<span class='text-muted pull-right'><small class='text-muted'>version: "
 					+ feature.version + "</small></span>");
 	$(body).append(version);
 
@@ -36,95 +96,21 @@ var createUpdateItem = function(id, feature) {
 	$(body).append(label);
 
 	var installBtn = $
-			.parseHTML("<span class='glyphicon glyphicon-save insall-icon'></span>");
+			.parseHTML("<span class='glyphicon glyphicon-save update-icon' data-toggle='tooltip' title='install "
+					+ feature.label+ " " + feature.version + "'></span>");
 	$(body).append(installBtn);
 
 	var description = $.parseHTML("<p></p>");
-	$(description).innerHTML(feature.description);
+	$(description).text(feature.description);
+	$(body).append(description);
 
 	$(item).append(body);
 
 	return item;
 }
 
-var getAvailableUpdatesCallback = function(){
-	return {  
-		   'org.wso2.developerstudio.capp.feature.feature.group':{  
-			      'installable':false,
-			      'selected':false,
-			      'id':'org.wso2.developerstudio.capp.feature.feature.group',
-			      'label':'Carbon Application Tools',
-			      'version':'4.0.0.M1',
-			      'provider':'%providerName',
-			      'descriptionURL':'http://wso2.com',
-			      'description':'This feature will install plugins related WSO2 Carbon Application Support.',
-			      'iconURL':'/tmp/DevSUpdaterTmp/org.wso2.developerstudio.capp.feature.feature.jar/4.0.0.M1/extracted/icon.png'
-			   },
-			   'org.wso2.developerstudio.registry.feature.feature.group':{  
-			      'installable':false,
-			      'selected':false,
-			      'id':'org.wso2.developerstudio.registry.feature.feature.group',
-			      'label':'Registry Tools',
-			      'version':'4.0.0.M1',
-			      'provider':'%providerName',
-			      'descriptionURL':'http://wso2.com',
-			      'description':'This feature will install plugins related to Carbon Registry Tools.',
-			      'iconURL':'/tmp/DevSUpdaterTmp/org.wso2.developerstudio.registry.feature.feature.jar/4.0.0.M1/extracted/icon.png'
-			   },
-			   'org.wso2.developerstudio.kernel.dependencies.feature.feature.group':{  
-			      'installable':false,
-			      'selected':false,
-			      'id':'org.wso2.developerstudio.kernel.dependencies.feature.feature.group',
-			      'label':'Kernel Dependencies',
-			      'version':'4.0.0.M1',
-			      'provider':'%providerName',
-			      'descriptionURL':'http://wso2.com',
-			      'description':'Do not install this feature manually. WSO2 Developer Studio Kernel Dependencies Feature.',
-			      'iconURL':'/tmp/DevSUpdaterTmp/org.wso2.developerstudio.kernel.dependencies.feature.feature.jar/4.0.0.M1/extracted/icon.png'
-			   },
-			   'org.wso2.developerstudio.usermgt.core.feature.feature.group':{  
-			      'installable':false,
-			      'selected':false,
-			      'id':'org.wso2.developerstudio.usermgt.core.feature.feature.group',
-			      'label':'User Management Core',
-			      'version':'4.0.0.M1',
-			      'provider':'%providerName',
-			      'descriptionURL':'http://wso2.com',
-			      'description':'This feature will install core plugins for User Management.',
-			      'iconURL':'/tmp/DevSUpdaterTmp/org.wso2.developerstudio.usermgt.core.feature.feature.jar/4.0.0.M1/extracted/icon.png'
-			   },
-			   'org.wso2.developerstudio.kernel.pluginsamples.feature.feature.group':{  
-			      'installable':false,
-			      'selected':false,
-			      'id':'org.wso2.developerstudio.kernel.pluginsamples.feature.feature.group',
-			      'label':'Samples',
-			      'version':'4.0.0.M1',
-			      'provider':'%providerName',
-			      'descriptionURL':'http://wso2.com',
-			      'description':'This feature contains the sample plugins for developer studio kernel.',
-			      'iconURL':'/tmp/DevSUpdaterTmp/org.wso2.developerstudio.kernel.pluginsamples.feature.feature.jar/4.0.0.M1/extracted/icon.png'
-			   },
-			   'org.wso2.developerstudio.kernel.webeditor.tools.feature.feature.group':{  
-			      'installable':false,
-			      'selected':false,
-			      'id':'org.wso2.developerstudio.kernel.webeditor.tools.feature.feature.group',
-			      'label':'Web Based Editor Framework',
-			      'version':'4.0.0.M1',
-			      'provider':'%providerName',
-			      'descriptionURL':'http://wso2.com',
-			      'description':'This feature will install plugins related to Web Based Editor Framework.',
-			      'iconURL':'/tmp/DevSUpdaterTmp/org.wso2.developerstudio.kernel.webeditor.tools.feature.feature.jar/4.0.0.M1/extracted/icon.png'
-			   },
-			   'org.wso2.developerstudio.kernel.core.feature.feature.group':{  
-			      'installable':false,
-			      'selected':false,
-			      'id':'org.wso2.developerstudio.kernel.core.feature.feature.group',
-			      'label':'Core Plugins',
-			      'version':'4.0.0.M1',
-			      'provider':'%providerName',
-			      'descriptionURL':'http://wso2.com',
-			      'description':'This feature will install mandatory kernel plugins.',
-			      'iconURL':'/tmp/DevSUpdaterTmp/org.wso2.developerstudio.kernel.core.feature.feature.jar/4.0.0.M1/extracted/icon.png'
-			   }
-			};
+
+var getAvailableUpdatesCallbackTest = function(){
+  var map = '{"org.wso2.developerstudio.carbon.server.feature.feature.group":{"currentVersion":"4.0.0.201511171257","installable":false,"selected":false,"id":"org.wso2.developerstudio.carbon.server.feature.feature.group","label":"Carbon Server Tools","version":"4.0.0.201511171304","provider":"%providerName","descriptionURL":"http://wso2.com","description":"This feature will install plugins related to Carbon Server Tools.","iconURL":"/tmp/DevSUpdaterTmp/org.wso2.developerstudio.carbon.server.feature.feature.jar/4.0.0.201511171304/extracted/icon.png"},"org.wso2.developerstudio.capp.feature.feature.group":{"currentVersion":"4.0.0.201511171257","whatIsNew":"This property tells users about new things in this release/update. You can add a nice description about the new things in here.","bugFixes":"This property tells users about fixes done in this release/patch.You can inform users about the fixes you have done in this patch.","installable":false,"selected":false,"id":"org.wso2.developerstudio.capp.feature.feature.group","label":"Carbon Application Tools","version":"4.0.0.201511171304","provider":"%providerName","descriptionURL":"http://wso2.com","description":"This feature will install plugins related WSO2 Carbon Application Support.","iconURL":"/tmp/DevSUpdaterTmp/org.wso2.developerstudio.capp.feature.feature.jar/4.0.0.201511171304/extracted/icon.png"},"org.wso2.developerstudio.registry.feature.feature.group":{"currentVersion":"4.0.0.201511171257","installable":false,"selected":false,"id":"org.wso2.developerstudio.registry.feature.feature.group","label":"Registry Tools","version":"4.0.0.201511171304","provider":"%providerName","descriptionURL":"http://wso2.com","description":"This feature will install plugins related to Carbon Registry Tools.","iconURL":"/tmp/DevSUpdaterTmp/org.wso2.developerstudio.registry.feature.feature.jar/4.0.0.201511171304/extracted/icon.png"}}';
+	return map;
 }

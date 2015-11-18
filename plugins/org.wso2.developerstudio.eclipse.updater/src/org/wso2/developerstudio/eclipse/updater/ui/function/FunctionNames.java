@@ -18,5 +18,6 @@ package org.wso2.developerstudio.eclipse.updater.ui.function;
 public class FunctionNames {
 
 	public static final String GET_AVAILABLE_UPDATES_FUNCTION = "getAvailableUpdatesCallback";
+	public static final String SET_SELECTED_UPDATES = "setSelectedUpdatesCallback";
 
 }

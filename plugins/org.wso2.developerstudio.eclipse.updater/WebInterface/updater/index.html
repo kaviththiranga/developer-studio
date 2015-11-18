@@ -31,13 +31,16 @@
             <div class="tab-content">
                 <div class="tab-pane active" id="updateTab">
                     <div class="panel"> 
-                        <div id="updatePanel" class="panel-body">
+                        <div id="updatePanel" class="panel-body" style="max-height: 300px;overflow-y: scroll;">
                             <div class="row">
                                 <div class="col-md-6">
+                                    <span id="updateAvailableSummary" class="text-info pull-left"></span>
+                                    <span id="updateSelectionSummary" class="text-info pull-right"></span>
+                                    <hr>
                                     <ul class="media-list" id="updateList">
-                                    </ul>
-                                    <span id="updateSummary"class="text-danger"></span>
-                                    <button type="button" onclick="loadUpdate();" class="btn btn-default">Label</button>                                     
+</ul>                                     
+                                    <button type="button" onclick="initUpdatesList();" class="btn btn-default">Check Updates</button>
+                                    <button type="button" onclick="installSelectedUpdates();" class="btn btn-default">Update</button>                                      
                                 </div>
                                 <div class="col-md-4 col-lg-6"> 
 </div>

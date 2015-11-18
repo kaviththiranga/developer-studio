@@ -1,7 +1,12 @@
 
-
-.insall-icon
+.update-icon
 {
     padding-left: 5px;
+}
+
+.selected
+{
+    padding-left: 5px;
+    color: #05c338;
 }
 

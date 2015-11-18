@@ -17,6 +17,7 @@ package org.wso2.developerstudio.eclipse.updater.ui;
 
 import org.wso2.developerstudio.eclipse.updater.core.UpdateManager;
 import org.wso2.developerstudio.eclipse.updater.ui.function.GetAvailableUpdatesFunction;
+import org.wso2.developerstudio.eclipse.updater.ui.function.SetSelectedUpdatesFunction;
 import org.wso2.developerstudio.eclipse.webui.core.window.WebWindow;
 
 public class UpdateWindow extends WebWindow {
@@ -25,9 +26,12 @@ public class UpdateWindow extends WebWindow {
 
 	public UpdateWindow() throws Exception {
 		super("KernelUpdaterUI", "/updater/index.html");
+		this.setSize(500, 500);
 		updateManager = new UpdateManager();
-		updateManager.checkupdates();
+		updateManager.checkForAvailableUpdates(null);
+		//updateManager.checkForAvailableFeatures(null);
 		new GetAvailableUpdatesFunction(this);
+		new SetSelectedUpdatesFunction(this);
 	}
 
 	public UpdateManager getUpdateManager() {

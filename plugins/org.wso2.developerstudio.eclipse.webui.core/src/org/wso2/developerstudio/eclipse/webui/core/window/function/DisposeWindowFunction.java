@@ -25,7 +25,7 @@ public class DisposeWindowFunction extends AbstractWebWindowFunction {
 	
 	@Override
 	public Object function(Object[] arguments) {	
-		window.getShell().dispose();
+		webWindow.getShell().dispose();
 		return Boolean.TRUE.toString();
 	}
 

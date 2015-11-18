@@ -16,30 +16,31 @@
 package org.wso2.developerstudio.eclipse.updater.ui;
 
 import org.wso2.developerstudio.eclipse.updater.core.UpdateManager;
+import org.wso2.developerstudio.eclipse.updater.ui.function.GetAvailableFeaturesFunction;
 import org.wso2.developerstudio.eclipse.updater.ui.function.GetAvailableUpdatesFunction;
+import org.wso2.developerstudio.eclipse.updater.ui.function.InstallSelectedFeaturesFunction;
+import org.wso2.developerstudio.eclipse.updater.ui.function.InstallSelectedUpdatesFunction;
+import org.wso2.developerstudio.eclipse.updater.ui.function.SetSelectedFeaturesFunction;
 import org.wso2.developerstudio.eclipse.updater.ui.function.SetSelectedUpdatesFunction;
 import org.wso2.developerstudio.eclipse.webui.core.window.WebWindow;
 
-public class UpdateWindow extends WebWindow {
+public class ProvisioningWindow extends WebWindow {
 	
 	protected UpdateManager updateManager;
 
-	public UpdateWindow() throws Exception {
+	public ProvisioningWindow(UpdateManager manager) throws Exception {
 		super("KernelUpdaterUI", "/updater/index.html");
 		this.setSize(500, 500);
-		updateManager = new UpdateManager();
-		updateManager.checkForAvailableUpdates(null);
-		//updateManager.checkForAvailableFeatures(null);
+		updateManager = manager;
 		new GetAvailableUpdatesFunction(this);
 		new SetSelectedUpdatesFunction(this);
+		new InstallSelectedUpdatesFunction(this);
+		new GetAvailableFeaturesFunction(this);
+		new SetSelectedFeaturesFunction(this);
+		new InstallSelectedFeaturesFunction(this);
 	}
 
 	public UpdateManager getUpdateManager() {
 		return updateManager;
 	}
-
-	public void setUpdateManager(UpdateManager updateManager) {
-		this.updateManager = updateManager;
-	}
-
 }

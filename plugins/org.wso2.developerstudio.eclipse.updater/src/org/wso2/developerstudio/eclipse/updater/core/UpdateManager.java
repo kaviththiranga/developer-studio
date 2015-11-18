@@ -89,6 +89,9 @@ public class UpdateManager {
 	protected IArtifactRepositoryManager artifactRepoManager;
 	protected IMetadataRepositoryManager metadataRepoManager;
 	
+	protected Collection<IInstallableUnit> installedWSO2Features;
+	protected Map<String, IInstallableUnit> installedWSO2FeaturesMap;
+	
 	protected Collection<IInstallableUnit> availableIUsInUpdateRepo;
 	protected Map<String, DevStudioFeature> devsFeaturesInUpdateRepo;
 	protected Map<String, Update>	availableUpdates;
@@ -98,6 +101,9 @@ public class UpdateManager {
 	
 	protected Collection<IInstallableUnit> availableIUsInReleaseRepo;
 	protected Map<String, DevStudioFeature> devsFeaturesInReleaseRepo;
+	protected Map<String, IInstallableUnit> availableNewFeatures;
+	protected Map<String, DevStudioFeature> availableDevFeaturesMap;
+	protected Collection<IInstallableUnit> selectedFeatures;
 
 	protected static IDeveloperStudioLog log = Logger
 			.getLog(UpdaterPlugin.PLUGIN_ID);
@@ -273,8 +279,12 @@ public class UpdateManager {
 		devsFeaturesInUpdateRepo = readFeatureMetadataFromRepo(updateArtifactRepository, allIUQueryResult, progress.newChild(1));
 
 		// get all installed wso2 features
-		Collection<IInstallableUnit> installedWSO2Features = getInstalledWSO2Features(progress
-				.newChild(1));
+		installedWSO2Features = getInstalledWSO2Features(progress.newChild(1));
+		
+		installedWSO2FeaturesMap = new HashMap<String, IInstallableUnit>();
+		for (IInstallableUnit iInstallableUnit : installedWSO2Features) {
+			installedWSO2FeaturesMap.put(iInstallableUnit.getId(), iInstallableUnit);
+		}
 
 		if (progress.isCanceled()) {
 			throw new OperationCanceledException();
@@ -337,20 +347,22 @@ public class UpdateManager {
 		IArtifactRepository updateArtifactRepository = artifactRepoManager.loadRepository(getDevStudioReleaseSite(),
 				progress.newChild(1));
 		
-		
 		// read metadata of all available features
 		devsFeaturesInReleaseRepo = readFeatureMetadataFromRepo(updateArtifactRepository, allIUQueryResult, progress.newChild(1));
-
-		URI[] repos = new URI[] { getDevStudioReleaseSite() };
-		// installOperation = new OperationFactory().c
-		installOperation.getProvisioningContext().setArtifactRepositories(
-				repos);
-		installOperation.getProvisioningContext().setMetadataRepositories(
-				repos);
-		installOperation.resolveModal(progress.newChild(1));
-		if (getResolutionResult().getSeverity() == IStatus.CANCEL
-				|| progress.isCanceled()) {
-			throw new OperationCanceledException();
+		
+		Collection<IInstallableUnit> filteredIUs = filterInstallableUnits(
+				"org.wso2", "feature.group", allIUQueryResult,
+				progress.newChild(1));
+		availableNewFeatures = new HashMap<String, IInstallableUnit>();
+		availableDevFeaturesMap = new HashMap<String, DevStudioFeature>();
+		for (IInstallableUnit iInstallableUnit : filteredIUs) {
+			availableNewFeatures
+					.put(iInstallableUnit.getId(), iInstallableUnit);
+			DevStudioFeature feature = new DevStudioFeature(iInstallableUnit);
+			if(!installedWSO2FeaturesMap.containsKey(iInstallableUnit.getId()))
+			{
+				availableDevFeaturesMap.put(iInstallableUnit.getId(), feature);
+			}
 		}
 	}
 
@@ -442,6 +454,20 @@ public class UpdateManager {
 		}
 		return updateOperation.getPossibleUpdates();
 	}
+	
+	/**
+	 * Get the list of all possible updates. This list may include multiple
+	 * versions of updates for the same Feature, as well as patches to the
+	 * Feature.
+	 * 
+	 * @return an array of all possible updates
+	 */
+	public Map<String, DevStudioFeature> getAvailableFeaturesMap() throws IllegalStateException {
+		if (availableDevFeaturesMap ==  null) {
+			throw new IllegalStateException(NOT_RESOLVED_ERROR);
+		}
+		return availableDevFeaturesMap;
+	}
 
 	/**
 	 * Get the list of latest updates. This list only includes the latest update
@@ -520,7 +546,12 @@ public class UpdateManager {
 		int count = 0;
 		for (DevStudioFeature selectedFeature: selectedFeaturesList) {
 			selectedUpdates[count] = availableUpdates.get(selectedFeature.getId());
+			count++;
 		}
+	
+	}
+	
+	public void installSelectedUpdates(IProgressMonitor monitor){
 		try {
 			URI[] repos = new URI[] { getDevStudioUpdateSite() };
 			updateOperation = new UpdateOperation(session);
@@ -530,13 +561,10 @@ public class UpdateManager {
 					repos);
 			
 			updateOperation.setSelectedUpdates(selectedUpdates);
-			updateOperation.resolveModal(null);
+			updateOperation.resolveModal(monitor);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-	}
-	
-	public void installSelectedUpdates(){
 		final ProvisioningJob provisioningJob = updateOperation
 				.getProvisioningJob(null);
 		if (provisioningJob != null) {
@@ -598,5 +626,34 @@ public class UpdateManager {
 			
 			}
 		}
+	}
+
+	public void setSelectedFeaturesToInstall(
+			List<DevStudioFeature> selectedDevSFeatures) {
+		this.selectedFeatures = new ArrayList<IInstallableUnit>();
+		for (DevStudioFeature devStudioFeature : selectedDevSFeatures) {
+			selectedFeatures.add(availableNewFeatures.get(devStudioFeature
+					.getId()));
+		}
+	}
+
+	public void installSelectedFeatures(IProgressMonitor monitor) {
+		SubMonitor progress = SubMonitor.convert(monitor,
+				"Installing WSO2 features.", 2);
+
+		URI[] repos = new URI[] { getDevStudioReleaseSite() };
+		installOperation = new InstallOperation(session, selectedFeatures);
+		installOperation.getProvisioningContext()
+				.setArtifactRepositories(repos);
+		installOperation.getProvisioningContext()
+				.setMetadataRepositories(repos);
+		IStatus status = installOperation.resolveModal(progress.newChild(1));
+		if (status.getSeverity() == IStatus.CANCEL || progress.isCanceled()) {
+			throw new OperationCanceledException();
+		} else if (status.getSeverity() == IStatus.ERROR) {
+			log.info("Error while resolving installation.");
+		}
+		ProvisioningJob provisioningJob = installOperation.getProvisioningJob(progress.newChild(1));
+		provisioningJob.schedule();
 	}
 }

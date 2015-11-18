@@ -20,11 +20,11 @@ import org.wso2.developerstudio.eclipse.webui.core.window.WebWindow;
 
 public abstract class AbstractWebWindowFunction extends BrowserFunction {
 
-	protected WebWindow window;
+	protected WebWindow webWindow;
 	
 	public AbstractWebWindowFunction(WebWindow window, String name) {
 		super(window.getBrowser(), name);
-		this.window = window;
+		this.webWindow = window;
 	}
 
 }

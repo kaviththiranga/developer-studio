@@ -18,10 +18,10 @@ package org.wso2.developerstudio.eclipse.updater.ui.function;
 import org.wso2.developerstudio.eclipse.updater.ui.ProvisioningWindow;
 import org.wso2.developerstudio.eclipse.webui.core.util.ScriptFactory;
 
-public class GetAvailableUpdatesFunction extends AbstractProvisioningWindowFunction {
+public class GetAvailableFeaturesFunction extends AbstractProvisioningWindowFunction {
 	
-	public GetAvailableUpdatesFunction(ProvisioningWindow provisioningWindow) {
-		super(provisioningWindow, FunctionNames.GET_AVAILABLE_UPDATES_FUNCTION);
+	public GetAvailableFeaturesFunction(ProvisioningWindow provisioningWindow) {
+		super(provisioningWindow, FunctionNames.GET_AVAILABLE_FEATURES_FUNCTION);
 	}
 	
 	@Override
@@ -29,9 +29,9 @@ public class GetAvailableUpdatesFunction extends AbstractProvisioningWindowFunct
 		String updatesList = null;
 		try {
 			updatesList = ScriptFactory.pojoToJson(provisioningWindow.getUpdateManager()
-					.getPossibleUpdatesMap());
+					.getAvailableFeaturesMap());
 		} catch (IllegalStateException e) {
-			log.error("Error while fetching the list of updates.", e);
+			log.error("Error while fetching the list of available features.", e);
 			return Boolean.FALSE.toString();
 		}
 		return updatesList;

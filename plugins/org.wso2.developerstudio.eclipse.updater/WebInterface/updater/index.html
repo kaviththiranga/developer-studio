@@ -50,7 +50,22 @@
                 </div>
                 <div class="tab-pane" id="installTab">
                     <div class="panel"> 
-                        <div id="availablePanel" class="panel-body">Basic panel example</div>                         
+                        <div id="installPanel" class="panel-body">
+                        	 <div class="row">
+                                <div class="col-md-6">
+                                    <span id="installAvailableSummary" class="text-info pull-left"></span>
+                                    <span id="installSelectionSummary" class="text-info pull-right"></span>
+                                    <hr>
+                                    <ul class="media-list" id="installList">
+</ul>                                     
+                                    <button type="button" onclick="initAvailableFeaturesList();" class="btn btn-default">Check Features</button>
+                                    <button type="button" onclick="installSelectedFeatures();" class="btn btn-default">Install</button>                                      
+                                </div>
+                                <div class="col-md-4 col-lg-6"> 
+</div>
+                            </div>
+                        	
+                        </div>                         
                     </div>                     
                 </div>
             </div>

@@ -21,7 +21,8 @@ import org.eclipse.core.commands.ExecutionException;
 import org.wso2.developerstudio.eclipse.logging.core.IDeveloperStudioLog;
 import org.wso2.developerstudio.eclipse.logging.core.Logger;
 import org.wso2.developerstudio.eclipse.updater.UpdaterPlugin;
-import org.wso2.developerstudio.eclipse.updater.ui.UpdateWindow;
+import org.wso2.developerstudio.eclipse.updater.core.UpdateManager;
+import org.wso2.developerstudio.eclipse.updater.ui.ProvisioningWindow;
 
 public class UpdateHandler extends AbstractHandler {
 
@@ -31,8 +32,12 @@ public class UpdateHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent arg0) throws ExecutionException {
 		try {
-			UpdateWindow upateWindow = new UpdateWindow();
-			upateWindow.open();
+			UpdateManager manager = new UpdateManager();
+			manager.checkForAvailableUpdates(null);
+			manager.checkForAvailableFeatures(null);
+			ProvisioningWindow provioningWindow = new ProvisioningWindow(manager);
+			provioningWindow.open();
+			
 		} catch (Exception e) {
 			log.error("Error while opening update window.", e);
 		}

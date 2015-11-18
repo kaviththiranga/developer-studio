@@ -18,19 +18,18 @@ package org.wso2.developerstudio.eclipse.updater.ui.function;
 import org.wso2.developerstudio.eclipse.logging.core.IDeveloperStudioLog;
 import org.wso2.developerstudio.eclipse.logging.core.Logger;
 import org.wso2.developerstudio.eclipse.updater.UpdaterPlugin;
-import org.wso2.developerstudio.eclipse.updater.ui.UpdateWindow;
+import org.wso2.developerstudio.eclipse.updater.ui.ProvisioningWindow;
 import org.wso2.developerstudio.eclipse.webui.core.window.function.AbstractWebWindowFunction;
 
-public abstract class AbstractUpdateWindowFunction extends AbstractWebWindowFunction {
+public abstract class AbstractProvisioningWindowFunction extends AbstractWebWindowFunction {
 
-	protected UpdateWindow updateWindow;
+	protected ProvisioningWindow provisioningWindow;
 	
 	protected static IDeveloperStudioLog log = Logger
 			.getLog(UpdaterPlugin.PLUGIN_ID);
 	
-	public AbstractUpdateWindowFunction(UpdateWindow updateWindow, String name) {
-		super(updateWindow, name );
-		this.updateWindow = updateWindow;
+	public AbstractProvisioningWindowFunction(ProvisioningWindow provisioningWindow, String name) {
+		super(provisioningWindow, name );
+		this.provisioningWindow = provisioningWindow;
 	}
-
 }

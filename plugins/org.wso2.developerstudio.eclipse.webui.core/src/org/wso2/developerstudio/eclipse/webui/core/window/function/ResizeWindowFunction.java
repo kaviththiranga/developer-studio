@@ -12,9 +12,9 @@ public class ResizeWindowFunction extends AbstractWebWindowFunction  {
 	public Object function(Object[] arguments) {
 		int width = Integer.parseInt((String) arguments[0]);
 		int height = Integer.parseInt((String) arguments[1]);
-		window.getShell().layout(true);
-		window.getShell().setSize(width, height);
-		window.getShell().redraw();
+		webWindow.getShell().layout(true);
+		webWindow.getShell().setSize(width, height);
+		webWindow.getShell().redraw();
 		return Boolean.TRUE.toString();
 	}
 

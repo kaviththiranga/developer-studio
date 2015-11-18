@@ -10,10 +10,10 @@ import org.wso2.developerstudio.eclipse.webui.core.util.ScriptFactory;
 
 import com.google.gson.reflect.TypeToken;
 
-public class SetSelectedUpdatesFunction extends AbstractProvisioningWindowFunction {
+public class SetSelectedFeaturesFunction extends AbstractProvisioningWindowFunction {
 
-	public SetSelectedUpdatesFunction(ProvisioningWindow provisioningWindow) {
-		super(provisioningWindow, FunctionNames.SET_SELECTED_UPDATES);
+	public SetSelectedFeaturesFunction(ProvisioningWindow provisioningWindow) {
+		super(provisioningWindow, FunctionNames.SET_SELECTED_FEATURES);
 	}
 	
 	@Override
@@ -23,7 +23,7 @@ public class SetSelectedUpdatesFunction extends AbstractProvisioningWindowFuncti
 		Type listType = new TypeToken<ArrayList<DevStudioFeature>>() {
         }.getType();
 		List<DevStudioFeature> selectedFeatures = ScriptFactory.jsonToPojo(featureListString, listType);
-		provisioningWindow.getUpdateManager().setSelectedUpdates(selectedFeatures);
+		provisioningWindow.getUpdateManager().setSelectedFeaturesToInstall(selectedFeatures);
 		return Boolean.TRUE.toString();
 	}
 
